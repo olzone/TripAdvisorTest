@@ -2,6 +2,8 @@ package olzone;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
@@ -22,12 +24,30 @@ public class WebsocketClientEndpoint {
 
     Session userSession = null;
     private MessageHandler messageHandler;
+    public static Process forwardProcess;
+    public static String port;
 
-    public WebsocketClientEndpoint(URI endpointURI) {
+    public WebsocketClientEndpoint(String port) {
         try {
+        	WebsocketClientEndpoint.port = port;
+        	forwardProcess = Runtime.getRuntime().exec(String.format("adb forward tcp:%s tcp:%s", port, port));
+        	forwardProcess.waitFor();
+
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.setDefaultMaxSessionIdleTimeout(1000000000);
-            container.connectToServer(this, endpointURI);
+            container.connectToServer(this, new URI(String.format("ws://localhost:%s/", port)));
+            
+            new Timer().schedule(new TimerTask() { //refresh forward every
+                @Override
+                public void run() {
+					try {
+						String port = WebsocketClientEndpoint.port;
+						WebsocketClientEndpoint.forwardProcess = Runtime.getRuntime().exec(String.format("adb forward tcp:%s tcp:%s", port, port));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+                }
+            }, 0, 5000);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,7 +60,7 @@ public class WebsocketClientEndpoint {
      */
     @OnOpen
     public void onOpen(Session userSession) {
-        System.out.println("\n\n\n\n\nopening websocket");
+        System.out.println("opening websocket");
         this.userSession = userSession;
     }
 
@@ -55,14 +75,9 @@ public class WebsocketClientEndpoint {
      */
     @OnClose
     public void onClose(Session userSession, CloseReason reason) throws DeploymentException, IOException, URISyntaxException {
-        System.out.println("reopening websocket\n\n\n\n\n");
-        System.err.println(reason);
-        
-        Process p = Runtime.getRuntime().exec("adb forward tcp:36969 tcp:36969");
-        
-        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        container.setDefaultMaxSessionIdleTimeout(1000000000);
-        container.connectToServer(this, new URI("ws://localhost:36969/"));
+        System.out.println("closing websocket, reason: " + reason.getReasonPhrase());    
+        forwardProcess.destroy();
+        this.userSession = null;
     }
 
     /**

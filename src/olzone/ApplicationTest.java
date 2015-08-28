@@ -35,10 +35,6 @@ public class ApplicationTest {
 	
 	private WebsocketClientEndpoint clientEndPoint = null;
 	private int cordsNumber;
-
-//	private Map<String, String> dataRestaurants = null;
-//	private Map<String, HashMap<String, String>> dataThingToDo = null;
-//	private Map<String, HashMap<String, String>> dataHotels = null;
 	
 	private ArrayList<Integer> pointWhereTestHotels = new ArrayList<Integer>();
 	private ArrayList<Integer> pointWhereTestRestaurants = new ArrayList<Integer>();
@@ -55,26 +51,26 @@ public class ApplicationTest {
 	@Test
 	public void testYosemiteVillage() throws Exception
 	{
-		nearMeTest("src/resources/YosemiteVillage.Trip", 0, 2, 0);
+		nearMeTest("src/resources/YosemiteVillage.Trip", 1, 1, 1);
 	}
 	
-//	@Test
-//	public void testCarmel() throws Exception
-//	{
-//		nearMeTest("src/resources/Carmel.Trip", 1, 1, 1);
-//	}
-//	
-//	@Test
-//	public void testSanJose() throws Exception
-//	{
-//		nearMeTest("src/resources/SanJose.Trip", 1, 1, 1);
-//	}
-//	
-//	@Test
-//	public void testSanFrancisco() throws Exception
-//	{
-//		nearMeTest("src/resources/SanFrancisco.Trip", 1, 1, 1);
-//	}
+	@Test
+	public void testCarmel() throws Exception
+	{
+		nearMeTest("src/resources/Carmel.Trip", 1, 1, 1);
+	}
+	
+	@Test
+	public void testSanJose() throws Exception
+	{
+		nearMeTest("src/resources/SanJose.Trip", 1, 1, 1);
+	}
+	
+	@Test
+	public void testSanFrancisco() throws Exception
+	{
+		nearMeTest("src/resources/SanFrancisco.Trip", 1, 1, 1);
+	}
 
     public void nearMeTest(String fileName, int numberOfPointWhereTestHotels, int numberOfPointWhereTestRestaurants, int numberOfPointWhereTestThingToDo) throws Exception
     {
